@@ -2,17 +2,20 @@
 <html>
 <head>
 	<title>Vue Test Page</title>
+	<script src="js/three.js"></script>
+	<script src="bower_components/threex.planets/threex.planets.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<style>
 			body { margin: 0; }
-			canvas { width: 100%; height: 100% }
+			canvas { width: 100%; height: 100%; display: black }
 	</style>
 </head>
 <body style="background-color: black">
-	<div id="inputForm" class="container" style="margin: 10% auto">
+<script type="text/javascript" src="planets.js"></script>
+	<!-- <div id="inputForm" class="container" style="margin: 10% auto">
 		<div v-if="click">
-			<h1 style="text-align: center; color: white">{{ message }}<img style="padding: 50px" src="file:///Users/jettlee/CMUNEO/smile.png"></h1>
+			<h1 style="text-align: center; color: white">{{ message }}<img style="padding: 50px" src="file:///C:/Users/jieyul2/CMUNEO/smile.png"></h1>
 		</div>
 		<div v-if="!click" class="row">
 			<h1 style="text-align: center; color: white">Hi There, May I Know You?</h1>	
@@ -31,36 +34,9 @@
             	</div>
 			</div>
 		</div>
-	</div>
-	<script src='threex.planets/threex.planets.js'></script>
-	<script src="js/three.js"></script>
-		<script>
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 35, window.innerWidth/window.innerHeight, 0.1, 1000 );
-
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
-
-			var mesh = threex.planets.createSun();
-			scene.add(mesh);
-
-			updateFcts.push(function(delta, now){
-				mesh.rotation.y += 1/8 * delta;		
-			})
-			var animate = function () {
-				requestAnimationFrame( animate );
-
-				cube.rotation.x += 0.1;
-				cube.rotation.y += 0.1;
-
-				renderer.render(scene, camera);
-			};
-
-			animate();
-		</script>
-
-	<script>
+	</div> -->
+	<div id ="status"></div>
+	<!-- <script>
 		var vm = new Vue({
 			el: '#inputForm',
 			data: {
@@ -78,6 +54,6 @@
 			}
 		})
 
-	</script>
+	</script> -->
 </body>
 </html>
