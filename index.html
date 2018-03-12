@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<script src='examples/vendor/three.js/build/three.min.js'></script>
+<script src='threex.planets.js'></script>
+<script src='threex.atmospherematerial.js'></script>
+<script src='examples/vendor/three.js/examples/js/libs/dat.gui.min.js'></script>
+<script src="threex.atmospheredatgui.js"></script>
+<script src="addPlanets.js"></script>
+<body style='margin: 0px; background-color: #000000; overflow: hidden;'><script>
+	var renderer	= new THREE.WebGLRenderer({
+		antialias	: true
+	});
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild( renderer.domElement );
+	renderer.shadowMapEnabled	= true
+  raycaster = new THREE.Raycaster();
+
+  var objects = [];
+	var updateFcts	= [];
+	var scene	= new THREE.Scene();
+	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100 );
+	camera.position.z = 3;
+
+	var light	= new THREE.AmbientLight( 0x888888 )
+	scene.add( light )
+
+	var light	= new THREE.DirectionalLight( 0xcccccc, 1 )
+	light.position.set(5,5,5)
+	scene.add( light )
+	light.castShadow	= true
+	light.shadowCameraNear	= 0.01
+	light.shadowCameraFar	= 15
+	light.shadowCameraFov	= 45
+
+	light.shadowCameraLeft	= -1
+	light.shadowCameraRight	=  1
+	light.shadowCameraTop	=  1
+	light.shadowCameraBottom= -1
+	// light.shadowCameraVisible	= true
+
+	light.shadowBias	= 0.001
+	light.shadowDarkness	= 0.2
+
+	light.shadowMapWidth	= 1024
+	light.shadowMapHeight	= 1024
+
+  var starSphere	= THREEx.Planets.createStarfield()
+	scene.add(starSphere)
+
+  // var datGUI	= new dat.GUI()
+	var glowColor	= new THREE.Color('cyan')
+	var glowColor	= new THREE.Color('yellow')
+	var sunMesh	= THREEx.Planets.createSun()
+	scene.add(sunMesh);
+  objects.push(sunMesh);
+
+  var geometry	= new THREE.SphereGeometry(0.5, 32, 32);
+  geometry	= sunMesh.geometry.clone();
+  var material	= THREEx.createAtmosphereMaterial();
+  material.uniforms.glowColor.value	= glowColor;
+	var mesh	= new THREE.Mesh(geometry, material );
+	mesh.scale.multiplyScalar(1.02);
+	scene.add( mesh );
+
+  var geometry	= new THREE.SphereGeometry(0.5, 32, 32)
+	geometry	= mesh.geometry.clone()
+	var material	= THREEx.createAtmosphereMaterial()
+	material.side	= THREE.BackSide
+	material.uniforms.coeficient.value	= 0.5
+	material.uniforms.power.value		= 4.0
+	material.uniforms.glowColor.value	= glowColor
+	var mesh	= new THREE.Mesh(geometry, material );
+	mesh.scale.multiplyScalar(1.2);
+	scene.add( mesh );
+
+	updateFcts.push(function(){
+		renderer.render( scene, camera );
+	})
+
+  var planets = createPlanets(3);
+  for(var i=0;i<planets.length;i++){
+    scene.add(planets[i]);
+  }
+
+  document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+  var mouse = new THREE.Vector2();
+  function onDocumentMouseDown( event ) {
+    event.preventDefault();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    // find intersections
+    raycaster.setFromCamera( mouse, camera );
+    var intersects = raycaster.intersectObjects( objects );
+    if ( intersects.length > 0 ) {
+      window.location.href = 'mapping.html';;
+    } else {
+      console.log("Nothing clicked");
+    }
+  }
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		loop runner							//
+	//////////////////////////////////////////////////////////////////////////////////
+	var lastTimeMsec= null
+	requestAnimationFrame(function animate(nowMsec){
+		// keep looping
+		requestAnimationFrame( animate );
+		// measure time
+		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		lastTimeMsec	= nowMsec
+		// call each update function
+		updateFcts.forEach(function(updateFn){
+			updateFn(deltaMsec/1000, nowMsec/1000)
+		})
+	})
+</script></body>
