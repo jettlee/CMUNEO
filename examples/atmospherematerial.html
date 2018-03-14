@@ -13,7 +13,7 @@
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 	renderer.shadowMapEnabled	= true
-	
+
 	var updateFcts	= [];
 	var scene	= new THREE.Scene();
 	var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100 );
@@ -53,7 +53,7 @@
 	var datGUI	= new dat.GUI()
 	var glowColor	= new THREE.Color('cyan')
 	var glowColor	= new THREE.Color('yellow')
-	var mesh	= THREEx.Planets.createEarth()
+	//var mesh	= THREEx.Planets.createEarth()
 	// var mesh	= THREEx.Planets.createMoon()
 	var mesh	= THREEx.Planets.createSun()
 	// mesh.visible	= false
@@ -101,9 +101,9 @@
 	//		render the scene						//
 	//////////////////////////////////////////////////////////////////////////////////
 	updateFcts.push(function(){
-		renderer.render( scene, camera );		
+		renderer.render( scene, camera );
 	})
-	
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//		loop runner							//
 	//////////////////////////////////////////////////////////////////////////////////

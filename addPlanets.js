@@ -1,4 +1,5 @@
 var planets = [];
+var planets_data = [];
 
 var planet_type = ['Sun','Mercury','Venus','Moon','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto']
 
@@ -56,5 +57,6 @@ function createPlanets(number_of_planets) {
     var mesh = addNewPlanet(planet_type[planet_number]);
     planets.push(mesh);
   }
+  localStorage.setItem('planets',JSON.stringify(planets));
   return planets;
 }

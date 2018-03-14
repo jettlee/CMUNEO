@@ -5,6 +5,9 @@
 <script src='examples/vendor/three.js/examples/js/libs/dat.gui.min.js'></script>
 <script src="threex.atmospheredatgui.js"></script>
 <script src="addPlanets.js"></script>
+<div style='position:absolute'>
+	<button onclick='addSomePlanet(this.innerHTML);'>Add Planets</button>
+</div>
 <body style='margin: 0px; background-color: #000000; overflow: hidden;'><script>
 	var renderer	= new THREE.WebGLRenderer({
 		antialias	: true
@@ -72,14 +75,13 @@
 	mesh.scale.multiplyScalar(1.2);
 	scene.add( mesh );
 
-	updateFcts.push(function(){
-		renderer.render( scene, camera );
+
+	updateFcts.push(function(delta, now){
+	sunMesh.rotation.y += 1/8 * delta;
 	})
 
-  var planets = createPlanets(3);
-  for(var i=0;i<planets.length;i++){
-    scene.add(planets[i]);
-  }
+	var geo = new THREE.Geometry();
+	geo.vertices.push(sunMesh.position);
 
   document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
@@ -98,6 +100,17 @@
     }
   }
 
+	function addSomePlanet(type){
+		var plnts = createPlanets(2);
+		for(var i=0;i<planets.length;i++){
+	    scene.add(planets[i]);
+			geo.vertices.push(planets[i].position);
+	  }
+	}
+
+	updateFcts.push(function(){
+		renderer.render( scene, camera );
+	})
 	//////////////////////////////////////////////////////////////////////////////////
 	//		loop runner							//
 	//////////////////////////////////////////////////////////////////////////////////
