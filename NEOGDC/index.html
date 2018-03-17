@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>NEO</title>
+    <script type="text/javascript" src="src/pace.min.js"></script>
+    <link href="pace.bigcounter.css" rel="stylesheet" />
+    <script type="text/javascript" src="src/head.load.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="galaxy_styles.css">
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+        attribute float alpha;
+        attribute float size;
+        attribute vec3 ca;
+        varying vec3 vColor;
+        varying float vAlpha;
+
+        void main() {
+            vColor = ca;
+            vAlpha = alpha;
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            gl_PointSize = size * (1.0+ 300.0 / length( mvPosition.xyz ) );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform vec3 color;
+        uniform sampler2D texture;
+        varying vec3 vColor;
+        varying float vAlpha;
+
+        void main() {
+            gl_FragColor = vec4( vColor, vAlpha );
+            gl_FragColor = vAlpha * texture2D( texture, gl_PointCoord );
+            //gl_FragColor = texture2D( texture, gl_PointCoord );
+        }
+    </script>
+
+    <script>
+    paceOptions = {
+        restartOnRequestAfter: false,
+        ajax: true
+    }
+    </script>
+
+    <script type="text/template" id="template_project_tag_small">
+        <div class="marker fade" id="tag_<%= id %>" cullings="0">
+            <div class="title"><%= title %></div>
+            <div class="centerer"></div>
+            <img src="<%= squareUrl %>" class="coverImage" />
+        </div>
+    </script>
+  </head>
+  <body>
+    <div id="container"></div>
+    <canvas id="three-canvas" style="width: 100%; height: 100%"></canvas>
+    <script type="text/javascript">
+    Pace.on('done', function(){ Pace.off(); });
+
+    var scriptsList = [];
+
+    scriptsList.push("src/three.min.js");
+
+    scriptsList.push("https://www.youtube.com/iframe_api"); // iframe player, to support custom touch action for youtube vid's
+    scriptsList.push("THREE-plugins/shaders/CopyShader.js");
+    scriptsList.push("THREE-plugins/postprocessing/EffectComposer.js");
+    scriptsList.push("THREE-plugins/postprocessing/RenderPass.js");
+    scriptsList.push("THREE-plugins/postprocessing/ShaderPass.js");
+    scriptsList.push("THREE-plugins/postprocessing/MaskPass.js");
+    scriptsList.push("THREE-plugins/shaders/HorizontalBlurShader.js");
+    scriptsList.push("THREE-plugins/shaders/VerticalBlurShader.js");
+    scriptsList.push("THREE-plugins/shaders/CopyShader.js");
+    scriptsList.push("THREE-plugins/shaders/BrightnessContrastShader.js");
+    scriptsList.push("THREE-plugins/AdditiveBlendShader.js");
+
+
+    scriptsList.push("src/TweenMax.min.js");
+    scriptsList.push("src/kinetic-v4.5.4.min.js");
+    scriptsList.push("src/tinyColor.js");
+    scriptsList.push("src/jquery-1.11.0-beta3.js");
+    scriptsList.push("src/jquery.overscroll.min.js");
+    scriptsList.push("src/underscore-min.js");
+    scriptsList.push("src/backbone-min.js");
+    scriptsList.push("bootstrap/js/bootstrap.min.js");
+    scriptsList.push("src/jquery.cycle2.min.js");
+
+
+    scriptsList.push("src/galaxy/settings.js");
+    scriptsList.push("src/galaxy/utils.js");
+    scriptsList.push("src/galaxy/layout.js");
+    scriptsList.push("src/galaxy/interactions.js");
+    scriptsList.push("src/galaxy/cameraMotion.js");
+    scriptsList.push("src/galaxy/projectTagManager.js");
+
+    scriptsList.push("data/customized_data.php");
+    scriptsList.push("src/galaxy/main.js");
+
+    head.load(scriptsList);
+
+    </script>
+  </body>
+</html>
