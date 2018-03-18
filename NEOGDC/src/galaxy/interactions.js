@@ -9,6 +9,7 @@ Galaxy.InteractionHandler = function (camera, particleSystemsArray){
     this.camera = camera;
     this.particleSystemsArray = particleSystemsArray;
     this.frozen = false;
+    this.tagClickItem = null;
 
     this.__interactionTimer = null;
     this.__constellation = null;
@@ -33,6 +34,7 @@ Galaxy.InteractionHandler = function (camera, particleSystemsArray){
     $(this.__tagManager).on('clickTag',function(e){
         that.resetInteractionTimer();
         that.clearProjectDescriptionLong(); // do this even if nothing else gets done
+        that.tagClickItem = Galaxy.Datasource[e.instructableId];
         if (that.cameraMotions.isAnimating === false) {
             that.showInstructable(e.instructableId);
         }
@@ -69,7 +71,7 @@ Galaxy.InteractionHandler.prototype = {
     // In GDC demo prototype, we prohibit the functionality of selecting a random vertex
     // Will implement click to neuroglancer here
     canvasClickEvent: function(e){
-
+        var self = this;
         e.preventDefault();
         e.stopPropagation();
         this.resetInteractionTimer();
@@ -118,12 +120,30 @@ Galaxy.InteractionHandler.prototype = {
             return getCameraDistanceForHit(intersection) / intersection.distance > 100;
         });
 
-        if ( intersects.length > 0 ) {
-            this.selectVertex(intersects[0])
+        // the following is a workaround for GDC demo. Instead of detecting a particular object in canvas,
+        // I made it detecting a certain area, which is the earth mesh on top layer.
+        var clickRange = {
+            locationX : e.clientX / Galaxy.Settings.width,
+            locationY : e.clientY / Galaxy.Settings.height
+        }
+
+        // if the click area is around earth mesh and in a zoom-in mode,
+        // then go to neuroglancer; otherwise, reset
+        if (self.tagClickItem !== null && clickRange.locationX >= 0.4 && clickRange.locationX <= 0.6 && clickRange.locationY >= 0.37 && clickRange.locationY <= 0.63) {
+            console.log("neuroglancer");
         } else {
-            // no intersections are within tolerance.
             this.reset({projectTagsAddAfterCameraReset: true});
         }
+        // if ( intersects.length > 0 ) {
+        //     _.each(intersects, function(node){
+        //         //console.log(node);
+        //
+        //     });
+        //     this.selectVertex(intersects[0])
+        // } else {
+        //     // no intersections are within tolerance.
+        //     this.reset({projectTagsAddAfterCameraReset: true});
+        // }
     },
 
     reset: function(thingsToReset, callback){
@@ -145,6 +165,7 @@ Galaxy.InteractionHandler.prototype = {
 
         // go about resetting things:
         var delay = 0;
+        this.tagClickItem = null;
         if (resetSettings.glowingIbles === true) this.clearGlowing();
         //if (resetSettings.constellation) this.clearConstellation();
 
@@ -228,6 +249,8 @@ Galaxy.InteractionHandler.prototype = {
     // as a result, changing material here is to change what will be rendered after clicking
     glowIbles: function(ibleList){
         // if (!_.isNull(this.__onscreenKeyboardView)) this.__onscreenKeyboardView.closeModal();
+
+        var self = this;
         var particles = new THREE.Geometry();
         _.each(ibleList,function(ibleData){
             var vec = Galaxy.Utilities.worldPointsFromIbleIds([ibleData.id])[0];
@@ -255,10 +278,12 @@ Galaxy.InteractionHandler.prototype = {
 		// 		spectral: 0.656,
         //     }
         // )
+
         // add it to the scene
         this.__glowingParticleSystems = this.__glowingParticleSystems || [];
         this.__glowingParticleSystems.push(particleSystem);
         Galaxy.TopScene.add(particleSystem);
+        //Galaxy.TopScene.add(sun);
     },
     clearProjectDescriptionLong: function(){
         var el = $('div.threejs-project-anchor.project-description-long'),

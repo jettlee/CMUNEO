@@ -3,6 +3,9 @@ var textureFlare1 = THREE.ImageUtils.loadTexture( "images/lensflare1.png" );
 var textureFlare2 = THREE.ImageUtils.loadTexture( "images/lensflare2.png" );
 var textureFlare3 = THREE.ImageUtils.loadTexture( "images/lensflare3.png" );
 
+var gradientImage = document.createElement('img');
+gradientImage.src = 'images/star_color_modified.png';
+
 //	just used in galactic core
 function addLensFlare(x,y,z, size, overrideImage){
 	var flareColor = new THREE.Color( 0xffffff );
@@ -36,7 +39,9 @@ function addStarLensFlare(x,y,z, size, overrideImage, hueShift){
 	hueShift = 1.0 - hueShift;
 	hueShift = constrain( hueShift, 0.0, 1.0 );
 
-	var lookupColor = gradientCanvas.getColor( hueShift );
+	//$('#three-canvas').getContext('2d').drawImage( gradientImage, 0, 0, gradientImage.width, gradientImage.height );
+	var lookupColor = [3,7,1,4,8,1];
+
 	flareColor.setRGB( lookupColor[0]/255, lookupColor[1]/255, lookupColor[2]/255 );
 
 	var brightnessCalibration = 1.25 - Math.sqrt( Math.pow(lookupColor[0],2) + Math.pow(lookupColor[1],2) + Math.pow(lookupColor[2],2) )/255 * 1.25;
@@ -90,4 +95,17 @@ function lensFlareUpdateCallback( object ) {
 
 	// object.lensFlares[ 2 ].y += 0.025;
 	// object.lensFlares[ 3 ].rotation = object.positionScreen.x * 0.5;
+}
+
+function constrain(v, min, max){
+  if( v < min )
+    v = min;
+  else
+  if( v > max )
+    v = max;
+  return v;
+}
+
+function getColor( percentage ) {
+	return $('#three-canvas').getContext('2d').getImageData(0,percentage * gradientImage.height, 1, 1).data;
 }

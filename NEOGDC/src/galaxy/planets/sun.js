@@ -6,6 +6,9 @@ var sunHaloColorTexture;
 var sunCoronaTexture;
 var starColorGraph;
 
+var glowSpanTexture = THREE.ImageUtils.loadTexture('images/glowspan.png');
+
+
 function loadStarSurfaceTextures(){
 
     if ( starColorGraph === undefined) {
@@ -111,7 +114,7 @@ function makeStarLensflare(size, zextra, hueShift){
 	    var vecY = -this.positionScreen.y * 2;
 	    var size = object.size ? object.size : 16000;
 
-	    var camDistance = camera.position.length();
+	    var camDistance = 1000;
 
 	    for( f = 0; f < fl; f ++ ) {
 
@@ -360,10 +363,10 @@ function makeSun( options ){
 
 	//	test controls
 
-	var c = gui.add( sunUniforms.spectralLookup, 'value', -.25, 1.5 );
-	c.onChange( function(v){
-		sun.setSpectralIndex( v );
-	});
+	// var c = gui.add( sunUniforms.spectralLookup, 'value', -.25, 1.5 );
+	// c.onChange( function(v){
+	// 	sun.setSpectralIndex( v );
+	// });
 
 	//	doesn't work
 	// var c = gui.add( sunUniforms.texturePrimary.value.repeat, 'x', 0.2, 100.0 )
@@ -376,4 +379,8 @@ function makeSun( options ){
 
 
 	return sun;
+}
+
+function map( value, istart, istop, ostart, ostop) {
+  return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
 }
