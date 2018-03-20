@@ -206,7 +206,7 @@ $(document).ready(function(){
         }
 
         // The little tags that travel with stars need to have updated positions
-        //interactionHandler.getTagManager().updateActiveTagPositions();
+        interactionHandler.getTagManager().updateActiveTagPositions();
 
 
         // draw

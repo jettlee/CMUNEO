@@ -1,6 +1,6 @@
 Galaxy.InteractionHandler = function (camera, particleSystemsArray){
     this.cameraMotions = new Galaxy.CameraMotions(camera);
-    _.bindAll(this,'canvasClickEvent','selectVertex');
+    _.bindAll(this,'canvasClickEvent','selectVertex', 'iframeSubmitClickEvent');
     _.bindAll(this,'showInstructable', 'getTagManager','resetInteractionTimer');
 
     // need status right away, in case we need to report something:
@@ -10,6 +10,8 @@ Galaxy.InteractionHandler = function (camera, particleSystemsArray){
     this.particleSystemsArray = particleSystemsArray;
     this.frozen = false;
     this.tagClickItem = null;
+    this.currentTagPos = null;
+    this.currentTagTexture = null;
 
     this.__interactionTimer = null;
     this.__constellation = null;
@@ -17,6 +19,7 @@ Galaxy.InteractionHandler = function (camera, particleSystemsArray){
 
     var that = this;
     $('#three-canvas').on('click',this.canvasClickEvent);
+    $('#iframeSubmitButton').on('click', this.iframeSubmitClickEvent);
 
     // Because of the confusing contexts, it's a little easier to do this than to handle each of the types of links properly
     $(document).on('click','a',{context: that},this.clickAnchor);
@@ -130,7 +133,11 @@ Galaxy.InteractionHandler.prototype = {
         // if the click area is around earth mesh and in a zoom-in mode,
         // then go to neuroglancer; otherwise, reset
         if (self.tagClickItem !== null && clickRange.locationX >= 0.4 && clickRange.locationX <= 0.6 && clickRange.locationY >= 0.37 && clickRange.locationY <= 0.63) {
-            console.log("neuroglancer");
+            $('body').fadeOut(600, function(){
+                $('#iframe').height($(document).height());
+                $('#iframe').show();
+                $('body').fadeIn(600, function(){});
+            })
         } else {
             this.reset({projectTagsAddAfterCameraReset: true});
         }
@@ -144,6 +151,50 @@ Galaxy.InteractionHandler.prototype = {
         //     // no intersections are within tolerance.
         //     this.reset({projectTagsAddAfterCameraReset: true});
         // }
+    },
+
+    iframeSubmitClickEvent: function(){
+        var self = this;
+        $('body').fadeOut(600, function(){
+            $('#iframe').height(0);
+            $('#iframe').hide();
+            $('body').fadeIn(600, function(){
+                _.delay(function(){
+
+                    var particles = new THREE.Geometry();
+                    var randomNum = self.integerRandom();
+                    var vertex = new THREE.Vector3(self.currentTagPos.x + randomNum[0], self.currentTagPos.y + randomNum[1], self.currentTagPos.z + randomNum[2]);
+                    particles.vertices.push(vertex);
+
+                    var pMaterial = new THREE.ParticleBasicMaterial({
+                        size: 100,
+                        map: THREE.ImageUtils.loadTexture(self.currentTagTexture),
+                        blending: THREE.AdditiveBlending,
+                        transparent: false,
+                        depthTest: false
+                    });
+
+                    // create the particle system
+                    var particleSystem = new THREE.ParticleSystem(
+                        particles,
+                        pMaterial);
+
+                    // add it to the scene
+
+                    this.__glowingParticleSystems = this.__glowingParticleSystems || [];
+                    this.__glowingParticleSystems.push(particleSystem);
+                    Galaxy.TopScene.add(particleSystem);
+                }, 500);
+            })
+        })
+    },
+
+    integerRandom: function(){
+        return [this.intervalRandom(5, -5), this.intervalRandom(3, -3), this.intervalRandom(0, -5)];
+    },
+
+    intervalRandom: function(min, max) {
+        return Math.floor(Math.random()*(max-min+1)+min);
     },
 
     reset: function(thingsToReset, callback){
@@ -254,6 +305,8 @@ Galaxy.InteractionHandler.prototype = {
         var particles = new THREE.Geometry();
         _.each(ibleList,function(ibleData){
             var vec = Galaxy.Utilities.worldPointsFromIbleIds([ibleData.id])[0];
+            self.currentTagPos = vec;
+            self.currentTagTexture = ibleData.squareUrl;
             var vertex = new THREE.Vector3(vec.x,vec.y,vec.z);
             vertex.instructableId = ibleData.id;
             particles.vertices.push(vertex);
@@ -261,7 +314,7 @@ Galaxy.InteractionHandler.prototype = {
 
         var pMaterial = new THREE.ParticleBasicMaterial({
             size: 100,
-            map: THREE.ImageUtils.loadTexture("images/earth.jpg"),
+            map: THREE.ImageUtils.loadTexture(self.currentTagTexture),
             blending: THREE.AdditiveBlending,
             transparent: false,
             depthTest: false
@@ -280,10 +333,65 @@ Galaxy.InteractionHandler.prototype = {
         // )
 
         // add it to the scene
+
         this.__glowingParticleSystems = this.__glowingParticleSystems || [];
         this.__glowingParticleSystems.push(particleSystem);
         Galaxy.TopScene.add(particleSystem);
         //Galaxy.TopScene.add(sun);
+    },
+
+    showKeyboard: function(settings){
+        var popover = $('.popover.fade');
+
+        // temporarily hide project description
+        popover.removeClass('in');
+        _.delay(function(){
+            popover.addClass('out');
+        },500);
+
+        // make sure that the keyboard is closed in the callback
+        var that = this,
+            wrappedSettings = {
+                enterButtonTitle: settings.enterButtonTitle,
+                titleLine: settings.titleLine,
+                promptLine: settings.promptLine,
+                callback: function(keyBoardResult){
+                    settings.callback(keyBoardResult);
+                }
+            };
+
+        // if (_.isEmpty(this.__onscreenKeyboardView)) {
+        //     this.__onscreenKeyboardView = new GalaxyTextInputModal(wrappedSettings);
+        //     this.__onscreenKeyboardView.on('removed',function(){
+        //         // replace project description
+        //         popover.removeClass('out').addClass('in');
+        //         $(this).off();
+        //         that.__onscreenKeyboardView = null;
+        //     });
+        // }
+    },
+
+    initiateSearch: function(){
+        var that = this;
+        this.showKeyboard({
+            callback: function(query){
+                // Do a case-insensitive author search in memory first. Show results as constellation if existing.
+                var authorIbles = _.filter(Galaxy.Datasource,function(ibleData){
+                    return ibleData.author.replace(" ","").toLowerCase() === query.replace(" ","").toLowerCase();
+                });
+                if (authorIbles.length > 0) {
+                    var canonicalAuthorname = authorIbles[0]["author"];
+                    //that.showAuthor(canonicalAuthorname);
+                    return;
+                }
+
+                // No author found. Do a /searchInstructables solr search by title if none. Display top 10-15 results with "lite" annotations.
+                //that.displaySearchResultsForQuery(query);
+            },
+            enterButtonTitle: "Search",
+            titleLine: "Search Authors & Keywords",
+            promptLine: "Term"
+        });
     },
     clearProjectDescriptionLong: function(){
         var el = $('div.threejs-project-anchor.project-description-long'),
@@ -311,4 +419,7 @@ Galaxy.InteractionHandler.prototype = {
         return this.__tagManager;
     },
 
+    // planetGenerate: function() {
+    //
+    // }
 };

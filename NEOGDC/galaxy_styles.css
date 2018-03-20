@@ -79,13 +79,13 @@ div#processingjsContainer {
     background-color: rgba(0, 6, 51, 0.5);
     border: 2px solid whitesmoke;
     box-shadow: 0 0 17px 0 whitesmoke;
-    border-radius: 30px;
+    border-radius: 20px;
 }
 #toolbar {
     cursor: pointer;
     width: 120px;
     margin-left: -60px;
-    height: 60px;
+    height: 50px;
     display: inline-block;
     position: absolute;
     text-align: center;
@@ -96,18 +96,18 @@ div#processingjsContainer {
     border-radius: 0 0 30px 30px;
 }
 #toolbar a.toolbarButton {
-    line-height: 53px;
+    line-height: 48px;
     text-decoration: none;
     color: white;
     font-family: helvetica,arial,sans-serif;
-    font-size: 21px;
+    font-size: 18px;
     font-weight: lighter;
 }
-#toolbar a.toolbarButton.left {
+#toolbar a.iframeSubmitButton.left {
     position: absolute;
     left: 40px;
 }
-#toolbar a.toolbarButton.right {
+#toolbar a.iframeSubmitButton.right {
     position: absolute;
     right: 40px;
 }
@@ -261,7 +261,7 @@ div#processingjsContainer {
 
 /* version 2.0! */
 iframe,embed,object {
-    max-width: 360px;
+    max-width: 100%;
 }
 .popover {
     max-width: 400px;

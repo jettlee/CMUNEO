@@ -9,7 +9,9 @@ Galaxy.ProjectTagManager = function(particleSystemsArray,camera,settings,data){
         'updateTagPosition',
         'cullOverlaps',
         'maintainTagCount',
-        'tagOverlapsAnother'
+        'tagOverlapsAnother',
+        'namingGenerator',
+        'planetsRandom'
     );
 
     this.activeTags = {};
@@ -21,10 +23,12 @@ Galaxy.ProjectTagManager = function(particleSystemsArray,camera,settings,data){
     this.projectData = data;
     this.$container = $('body');
 
+    this.planetsArray = ["../images/neostars_earth.png", "../images/neostars_fire.png", "../images/neostars_gold.png", "../images/neostars_herb.png", "../images/neostars_water.png"];
+    this.countForPlanets = 0;
     this.addPickRandomMixin();
 
     var that = this;
-    setInterval(that.cullOverlaps,500000);
+    setInterval(that.cullOverlaps,15000000000);
 };
 
 Galaxy.ProjectTagManager.prototype = {
@@ -48,13 +52,16 @@ Galaxy.ProjectTagManager.prototype = {
 
         // create the tag
         this.projectData[projectId]['squareUrl'] = this.projectData[projectId]['imageUrl'].replace("SQUARE3","SQUARE");
+        // hardcode for demo purpose
+        this.projectData[projectId].title = this.namingGenerator();
+        this.projectData[projectId].squareUrl = this.planetsRandom();
         var tag = $(_.template($('#template_project_tag_small').html(),this.projectData[projectId]));
         this.$container.append(tag);
 
         // find its corresponding node's position in the world, then on screen xy
         tag.css({display: 'block'});
         //tag.attr('maxCullings',parseInt(Math.random()*7 + 7));
-        tag.attr('maxCullings',1000);
+        tag.attr('maxCullings',1000000000);
         this.updateTagPosition(tag,projectId);
 
         // clicking a tag is handled here so event paths are clear.
@@ -63,6 +70,24 @@ Galaxy.ProjectTagManager.prototype = {
         tag.on('click',{context: this},this.handleTagClick);
 
         return tag;
+    },
+
+    planetsRandom: function() {
+        return this.planetsArray[this.countForPlanets++ % this.planetsArray.length];
+    },
+
+    namingGenerator: function(){
+        var array1 = new Array("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+        var str = "";
+        for (var i = 0; i < 10; i++) {
+            if (i === 6) {
+                str += "-";
+                continue;
+            }
+            index = Math.floor(Math.random() * array1.length);
+            str += array1[index];
+        }
+        return str;
     },
     addTag: function(tag){
         // adding 'in' right away looses the transition. wait for the next frame
