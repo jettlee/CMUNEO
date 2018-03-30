@@ -23,7 +23,7 @@ Galaxy.ProjectTagManager = function(particleSystemsArray,camera,settings,data){
     this.projectData = data;
     this.$container = $('body');
 
-    this.planetsArray = ["../images/neostars_earth.png", "../images/neostars_fire.png", "../images/neostars_gold.png", "../images/neostars_herb.png", "../images/neostars_water.png"];
+    this.planetsArray = ["./images/unknown_planets.jpg", "./images/test3.jpg", "./images/test2.png", "./images/test5.jpg", "./images/test1.jpeg", "./images/test4.jpg"];
     this.countForPlanets = 0;
     this.addPickRandomMixin();
 
